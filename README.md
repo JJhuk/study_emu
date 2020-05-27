@@ -27,7 +27,7 @@
 
 ### 작동 화면
 
-![Study%20Emulator%206ec24633b76f43e4ae6b18d03dca7001/Untitled.png](Study%20Emulator%206ec24633b76f43e4ae6b18d03dca7001/Untitled.png)
+<img src=https://raw.githubusercontent.com/JJhuk/study_emu/new_master/README/Untitled.png">
 
 ### 참고 자료
 
