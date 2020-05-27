@@ -27,7 +27,9 @@
 
 ### 작동 화면
 
-<img src=https://raw.githubusercontent.com/JJhuk/study_emu/new_master/README/Untitled.png">
+
+![ex_screenshot](./README/Untitled.png)
+
 
 ### 참고 자료
 
