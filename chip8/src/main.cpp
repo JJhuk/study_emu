@@ -121,21 +121,92 @@ void render( Chip8 & chip8 )
 			}
 		}
 	}
-
-
-
 }
+
+
+struct KeyBind
+{
+	int key; int bind;
+};
+
+static KeyBind keyMap[] = {
+		{ GLFW_KEY_1, 0x0 },
+		{ GLFW_KEY_2, 0x1 },
+		{ GLFW_KEY_3, 0x2 },
+		{ GLFW_KEY_4, 0x3 },
+		{ GLFW_KEY_Q, 0x4 },
+		{ GLFW_KEY_W, 0x5 },
+		{ GLFW_KEY_E, 0x6 },
+		{ GLFW_KEY_R, 0x7 },
+		{ GLFW_KEY_A, 0x8 },
+		{ GLFW_KEY_S, 0x9 },
+		{ GLFW_KEY_D, 0xA },
+		{ GLFW_KEY_F, 0xB },
+		{ GLFW_KEY_Z, 0xC },
+		{ GLFW_KEY_X, 0xD },
+		{ GLFW_KEY_C, 0xE },
+		{ GLFW_KEY_V, 0xF },
+};
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	BYTE bind = 0xff;
+	for ( auto & key_bind : keyMap )
+	{
+		if( key == key_bind.key )
+		{
+			bind = key_bind.bind;
+			break;
+		}
+	}
+
+	if(bind == 0xff)
+	{
+		return;
+	}
+
+	if( action == GLFW_PRESS )
 	{
 
+		chip8.addInput( bind );
+		return;
 	}
-		//chip8.nextStep();
+
+
+	if ( action == GLFW_RELEASE )
+	{
+		chip8.upInput( bind  );
+		return;
+	}
+
+
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	{
+	}
+
 }
 
 
+#ifdef  _CHIP8_DISASM_BUILD
+
+int main() // 디스어셈블러 빌드
+{
+	chip8.reset();
+	chip8.loadRom();
+
+	while( !chip8.isEOF() )
+	{
+		chip8.nextStep();
+	}
+
+	chip8.createDisASMFile();
+}
+
+
+#endif
+
+
+#ifndef _CHIP8_DISASM_BUILD
 
 int main()
 {
@@ -174,9 +245,8 @@ int main()
 
 
 	double lastTime = 0.0;
-	const double maxFPS = 120.0;
+	const double maxFPS = 240.0;
 	const double maxPeriod = 1.0 / maxFPS;
-#define __CHIP8_DEBUG
 
 	glfwSetKeyCallback(window, key_callback);
 
@@ -204,43 +274,21 @@ int main()
 
 #ifdef __CHIP8_DEBUG
 		}
+#endif
 		while ( time - lastTime < maxPeriod )
 		{
 			time = glfwGetTime();
 			glfwPollEvents();
 		}
-#endif
+
 		lastTime = glfwGetTime();
 	}
 
-
-	/*
-	std::thread cinThread(ReadCh, std::ref(run));
-
-	while (run.load())
-	{
-		long_time tick = GetTickCount();
-
-		chip8.nextStep();
-		render(chip8);
-
-		long_time tock = GetTickCount();
-
-		while( tock - tick > 33 )
-		{
-			tick = GetTickCount();
-		}
-	}
-
-	run.store(false);
-	cinThread.join();
-
-
-	std::cout << "Hello, World!" << std::endl;
-	//Chip8 chip8;
-	//std::cout << "chip8.getNextOpCode(); : " << chip8.getNextOpCode() << std::endl;
-
-*/
-
 	return 0;
 }
+
+
+
+
+
+#endif //  _CHIP8_DISASM_BUILD

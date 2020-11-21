@@ -96,29 +96,6 @@ void Chip8::loadRom()
 	fclose(game);
 }
 
-struct KeyBind
-{
-	BYTE key; BYTE bind;
-};
-
-static KeyBind keyMap[] = {
-		{ '1', 0x0 },
-		{ '2', 0x1 },
-		{ '3', 0x2 },
-		{ '4', 0x3 },
-		{ 'q', 0x4 },
-		{ 'w', 0x5 },
-		{ 'e', 0x6 },
-		{ 'r', 0x7 },
-		{ 'a', 0x8 },
-		{ 's', 0x9 },
-		{ 'd', 0xA },
-		{ 'f', 0xB },
-		{ 'z', 0xC },
-		{ 'x', 0xD },
-		{ 'c', 0xE },
-		{ 'v', 0xF },
-};
 
 BYTE Chip8::waitInput()
 {
@@ -137,6 +114,14 @@ void Chip8::addInput(BYTE input_code)
 {
 	mKeys[input_code] = 1;
 }
+
+
+void Chip8::upInput(BYTE input_code)
+{
+	mKeys[input_code] = 0;
+}
+
+
 
 /*
  * OPCODE는 CPU가 실행하는 명령어. mGameMemory로 부터 명령어를 읽는다.
@@ -159,6 +144,39 @@ WORD Chip8::getNextOpCode()
 	return res; // opCode 반환
 }
 
+
+
+
+#ifdef _CHIP8_DISASM_BUILD
+
+#include "disasm_opcodes/disasm_util.h"
+
+void Chip8::pushDisASMString(const std::string &code)
+{
+	codes.push_back( code );
+}
+
+void Chip8::createDisASMFile()
+{
+	int start_address = 0x200;
+
+
+	FILE * disasm = nullptr;
+	fopen_s( &disasm, "rom/PONG_disasm_debug.txt", "wt" );
+
+	for(  auto & string : codes )
+	{
+		std::string result = "0x" + hex_to_string(start_address) + ": " + string + "\n";
+		fwrite(result.c_str(), sizeof ( char ), result.length(), disasm );
+
+		start_address += 2;
+	}
+
+	fclose(disasm);
+}
+
+#endif
+
 void Chip8::nextStep()
 {
 	if( mDelayTimer > 0 )
@@ -167,6 +185,15 @@ void Chip8::nextStep()
 	}
 
 	WORD opCode = getNextOpCode();
+
+	if (opCode == 0x0000)
+	{
+#ifdef _CHIP8_DISASM_BUILD
+		mIsEOF = true;
+		return;
+#endif
+	}
+
 	// OP 코드 해독..
 	switch (DecodeOpCodeFirst(opCode)) //opCode & 0xF000
 	{
@@ -234,11 +261,11 @@ void Chip8::nextStep()
         case 0xF000:
 			nextStep0xF( opCode );
             break;
-		default: // 아직 안 하고..
+		default:
 			break;
 	}
 
-	memset(mKeys, 0, sizeof(mKeys));
+	//memset(mKeys, 0, sizeof(mKeys));
 }
 
 void Chip8::nextStep0x8(WORD opCode)

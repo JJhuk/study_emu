@@ -7,7 +7,7 @@
 
 #include "../typedef.h"
 #include <vector>
-
+#include <string>
 class Chip8
 {
 public:
@@ -27,6 +27,7 @@ public:
 
 	BYTE waitInput();
 	void addInput(BYTE input_code);
+	void upInput(BYTE input_code);
 
 	static BYTE * getFontSet();
 	static int getFontSetLength() { return 80; }
@@ -47,9 +48,11 @@ public:
 	void reset();
 	void loadRom();
 
-
-
-
+#ifdef _CHIP8_DISASM_BUILD
+	void pushDisASMString(const std::string & code);
+	bool isEOF() { return this->mIsEOF; }
+	void createDisASMFile();
+#endif
 	/*
 	 * OP Code는 4자리다. 0xFFFF 형식으로 되어 있기도 하고..
 	 * 그래서 최대수의 AND 연산으로 각 자리수를 구해줄 수 있다. 이를태면..
@@ -265,6 +268,11 @@ private:
 
 	// 함수 호출시 리턴 위치를 알기 위해 위치를 기록해 놓는 콜 스택.
 	std::vector<WORD> mStack;
+
+#ifdef _CHIP8_DISASM_BUILD
+	std::vector<std::string> codes;
+	bool mIsEOF = false;
+#endif
 
 	//입력 스택. 1이면 입력. 0이면 미입력.
 	BYTE mKeys[16];

@@ -1,3 +1,5 @@
+#ifndef _CHIP8_DISASM_BUILD
+
 //
 // Created by ffdd270 on 2020-05-20.
 //
@@ -84,3 +86,5 @@ void Chip8::opCodeFX1E(WORD opCode)
 	WORD VxIndex = (opCode & 0x0F00) >> 8;
 	mAddressIndex += mRegisters[VxIndex];
 }
+
+#endif
